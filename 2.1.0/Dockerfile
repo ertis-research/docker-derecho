@@ -37,10 +37,19 @@ RUN ./derecho/scripts/prerequisites/install-mutils-tasks.sh
 RUN wget http://old-releases.ubuntu.com/ubuntu/pool/universe/s/spdlog/libspdlog-dev_1.3.1-1_amd64.deb \
     && dpkg -i libspdlog-dev_1.3.1-1_amd64.deb
 
+# Remove deb after installation
+RUN rm -f libspdlog-dev_1.3.1-1_amd64.deb
+
 # Build and install Derecho
 WORKDIR /derecho/Release
 RUN cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local .. \
     && make -j $(nproc) \
     && make install
+
+# Set root as workind directory
+WORKDIR /
+
+# Remove source after installation
+RUN rm -rf /derecho
 
 CMD ["/bin/bash"]
