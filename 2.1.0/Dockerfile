@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:20.04 as build
 
 # Avoid timezone issue
 ARG DEBIAN_FRONTEND=noninteractive
@@ -15,8 +15,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         automake \
         libssl-dev \
         librdmacm-dev \
-        libibverbs-dev \
-    && rm -rf /var/lib/apt/lists/*
+        libibverbs-dev
 
 # Download Derecho source
 RUN git clone -b v2.1.0 --depth 1 https://github.com/Derecho-Project/derecho.git
@@ -37,19 +36,18 @@ RUN ./derecho/scripts/prerequisites/install-mutils-tasks.sh
 RUN wget http://old-releases.ubuntu.com/ubuntu/pool/universe/s/spdlog/libspdlog-dev_1.3.1-1_amd64.deb \
     && dpkg -i libspdlog-dev_1.3.1-1_amd64.deb
 
-# Remove deb after installation
-RUN rm -f libspdlog-dev_1.3.1-1_amd64.deb
-
 # Build and install Derecho
 WORKDIR /derecho/Release
 RUN cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local .. \
     && make -j $(nproc) \
     && make install
 
-# Set root as workind directory
-WORKDIR /
+# Copy installed files to second ubuntu stage to save space
+FROM ubuntu:20.04
 
-# Remove source after installation
-RUN rm -rf /derecho
+COPY --from=build /usr/local/include/derecho /usr/local/include/derecho
+COPY --from=build /usr/local/lib/libderecho.so /usr/local/lib/libderecho.so
+COPY --from=build /usr/local/lib/cmake/derecho /usr/local/lib/cmake/derecho
+COPY --from=build /usr/local/share/derecho /usr/local/lib/share/derecho
 
 CMD ["/bin/bash"]
