@@ -49,5 +49,6 @@ COPY --from=build /usr/local/include/derecho /usr/local/include/derecho
 COPY --from=build /usr/local/lib/libderecho.so /usr/local/lib/libderecho.so
 COPY --from=build /usr/local/lib/cmake/derecho /usr/local/lib/cmake/derecho
 COPY --from=build /usr/local/share/derecho /usr/local/lib/share/derecho
+COPY --from=build /usr/local/share/derecho/derecho-sample.cfg /usr/local/share/derecho/derecho-sample.cfg
 
 CMD ["/bin/bash"]
