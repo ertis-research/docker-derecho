@@ -45,10 +45,27 @@ RUN cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local .. \
 # Copy installed files to second ubuntu stage to save space
 FROM ubuntu:20.04
 
+# Derecho
 COPY --from=build /usr/local/include/derecho /usr/local/include/derecho
 COPY --from=build /usr/local/lib/libderecho.so /usr/local/lib/libderecho.so
+COPY --from=build /usr/local/lib/libderecho.so.2.1 /usr/local/lib/libderecho.so.2.1
 COPY --from=build /usr/local/lib/cmake/derecho /usr/local/lib/cmake/derecho
-COPY --from=build /usr/local/share/derecho /usr/local/lib/share/derecho
+COPY --from=build /usr/local/share/derecho /usr/local/share/derecho
 COPY --from=build /usr/local/share/derecho/derecho-sample.cfg /usr/local/share/derecho/derecho-sample.cfg
+
+# Mutils
+COPY --from=build /usr/local/include/mutils /usr/local/include/mutils
+COPY --from=build /usr/local/lib/libmutils.so /usr/local/lib/libmutils.so
+COPY --from=build /usr/local/include/mutils-containers /usr/local/include/mutils-containers
+COPY --from=build /usr/local/include/mutils-tasks /usr/local/include/mutils-tasks
+COPY --from=build /usr/local/lib/libmutils-tasks.so /usr/local/lib/libmutils-tasks.so
+
+# RDMA
+COPY --from=build /usr/local/include/rdma /usr/local/include/rdma
+COPY --from=build /usr/local/lib/libfabric.so.1 /usr/local/lib/libfabric.so.1
+COPY --from=build /usr/lib/x86_64-linux-gnu/librdmacm.so.1 /usr/lib/x86_64-linux-gnu/librdmacm.so.1
+COPY --from=build /usr/lib/x86_64-linux-gnu/libibverbs.so.1 /usr/lib/x86_64-linux-gnu/libibverbs.so.1
+COPY --from=build /lib/x86_64-linux-gnu/libnl-3.so.200 /lib/x86_64-linux-gnu/libnl-3.so.200
+COPY --from=build /usr/lib/x86_64-linux-gnu/libnl-route-3.so.200 /usr/lib/x86_64-linux-gnu/libnl-route-3.so.200
 
 CMD ["/bin/bash"]
